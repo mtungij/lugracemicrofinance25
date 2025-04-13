@@ -554,7 +554,7 @@
     paymentMethod.addEventListener("change", function () {
         var selectedMethod = this.options[this.selectedIndex].text.trim().toUpperCase();
 
-        if (["M-PESA", "TIGO-PESA", "AIRTELMONEY"].includes(selectedMethod)) {
+        if (["M PESA", "TIGO PESA"].includes(selectedMethod)) {
             mobilePaymentFields.style.display = "flex";
             jinaWakala.setAttribute("required", "required");
             withdrawalCharger.setAttribute("required", "required");
