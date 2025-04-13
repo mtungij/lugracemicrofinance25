@@ -30,7 +30,7 @@
                          <div class="header">
                             <h2>Loan Pending </h2> 
                             <div class="pull-right">
-                            <a href="<?php echo base_url("admin/blanchwisepending"); ?>" class="btn btn-primary" target="_blank"><i class="icon-eye">Today  Per Branch</i></a>
+                            <!-- <a href="<//?php echo base_url("admin/blanchwisepending"); ?>" class="btn btn-primary" target="_blank"><i class="icon-eye">Today  Per Branch</i></a> -->
                                <a href="" data-toggle="modal" data-target="#addcontact2" class="btn btn-primary"><i class="icon-calendar">Filter</i></a>
                                  <a href="" data-toggle="modal" data-target="#addcontact1" class="btn btn-primary"><i class="icon-eye">Today Loan Pending</i></a>      
                             </div>   
