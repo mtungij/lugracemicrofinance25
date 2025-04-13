@@ -213,6 +213,171 @@
             </div>
 
 
+            <?php 
+             $all_customer = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id'");
+             $all_male = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND gender = 'male'");
+             $all_female = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND gender = 'female'");
+             $employee = $this->db->query("SELECT * FROM tbl_employee WHERE comp_id = '$comp_id'");
+             ?>
+            </div>
+
+
+            <div class="row clearfix">
+                 <div class="col-md-3 col-12">
+                   <div class="card">
+                        <div class="header">
+                            <h2>Clients and Employees</h2>
+                        </div>
+                        <div class="body">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="c">Total Clients</td>
+                                        <td class="align-right"><span class="badge badge-success"><?php echo $all_customer->num_rows(); ?></span></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="c">Male</td>
+                                        <td class="align-right"><span class="badge badge-info"><?php echo $all_male->num_rows(); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c">Female</td>
+                                        <td class="align-right"><span class="badge badge-danger"><?php echo $all_female->num_rows(); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c">Staff</td>
+                                        <td class="align-right"><span class="badge badge-default"><?php echo $employee->num_rows(); ?></span></td>
+                                    </tr>                              
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+        <?php 
+        $deposit_daily = $this->queries->fetch_today_deposit_daily_comp($comp_id);
+        $depist_weekly = $this->queries->fetch_today_deposit_weekly_comp($comp_id);
+        $deposit_monthly = $this->queries->fetch_today_deposit_monthly_comp($comp_id);
+        $all_deposit = $this->queries->fetch_today_deposit_comp($comp_id);
+        //print_r($all_deposit);
+         ?>
+
+                    <div class="col-md-3 col-12">
+                   <div class="card">
+                        <div class="header">
+                            <h2>Payments for Today</h2>
+                        </div>
+                        <div class="body">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="c">Daily loans</td>
+                                        <td class="align-right"><span class="badge badge-warning"><?php echo number_format($deposit_daily->total_deposit); ?></span></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="c">Weekly loans</td>
+                                        <td class="align-right"><span class="badge badge-info"><?php echo number_format($depist_weekly->total_deposit_weekly + $depist_weekly->total_double_wekly); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c">Monthly Loans</td>
+                                        <td class="align-right"><span class="badge badge-secondary"><?php echo number_format($deposit_monthly->total_deposit_monthly + $deposit_monthly->total_double_month); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c"><b>TOTAL</b></td>
+                                        <td class="align-right"><b><span class="badge badge-success"><?php echo number_format($all_deposit->total_deposit_all + $all_deposit->total_double_all); ?></span></b></td>
+                                    </tr>                              
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+
+                    <?php 
+                 $loan_with_day = $this->queries->get_today_withdrawal_daily_comp($comp_id);
+                 $loan_with_weekly = $this->queries->get_today_withdrawal_weekly_comp($comp_id);
+                 $loan_with_monthy = $this->queries->get_today_withdrawal_monthly_comp($comp_id);
+                 $ll_loanwith = $this->queries->get_today_withdrawal_all_comp($comp_id);
+                 //print_r($ll_loanwith);
+                     ?>
+
+                     <div class="col-md-3 col-12">
+                   <div class="card">
+                        <div class="header">
+                            <h2>Loans Disbursed Today</h2>
+                        </div>
+                        <div class="body">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="c">Daily Loans</td>
+                                        <td class="align-right"><span class="badge badge-warning"><?php echo number_format($loan_with_day->total_loanWith_day); ?></span></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="c">Weekly Loans</td>
+                                        <td class="align-right"><span class="badge badge-info"><?php echo number_format($loan_with_weekly->total_loanWith_weekly); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c">Monthly Loans</td>
+                                        <td class="align-right"><span class="badge badge-secondary"><?php echo number_format($loan_with_monthy->total_loanWith_monthly); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c"><b>TOTAL</b></td>
+                                        <td class="align-right"><b><span class="badge badge-success"><?php echo number_format($ll_loanwith->total_loanWith_all); ?></span></b></td>
+                                    </tr>                              
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+
+             <?php 
+             $deducted_balance = $this->queries->get_today_deducted_income_dahboard_comp($comp_id);
+             $non_balance = $this->queries->get_today_nonDeducted_receive_comp($comp_id);
+             $expenses = $this->queries->get_today_expenses_blanch_data_comp($comp_id);
+             // print_r($expenses);
+             //         exit();
+              ?>
+                     <div class="col-md-3 col-12">
+                   <div class="card">
+                        <div class="header">
+                            <h2>FEES & EXPENSES</h2>
+                        </div>
+                        <div class="body">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="c">FEES</td>
+                                        <td class="align-right"><span class="badge badge-warning"><?php echo number_format($deducted_balance->total_deducted); ?></span></td>
+                                    </tr>
+
+                                    <tr>
+                                <td class="c"><a href="<?php echo base_url("admin/income_brachwise"); ?>" style="color: inherit; text-decoration: none;">PENALTIES</a></td>
+                                <td class="align-right">
+                                    <span class="badge badge-info">
+                                        <?php echo number_format($non_balance->total_non); ?>
+                                    </span>
+                                </td>
+                            </tr>
+
+                                    <tr>
+                                        <td class="c"><b>TOTAL</b></td>
+                                        <td class="align-right"><span class="badge badge-success"><?php echo number_format($deducted_balance->total_deducted + $non_balance->total_non); ?></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="c">Expenditures</td>
+                                        <td class="align-right"><b><span class="badge badge-danger"><?php echo number_format($expenses->total_expenses); ?></span></b></td>
+                                    </tr>                              
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+             
+             
+            </div>
+
+
           
 
             <div class="row clearfix w_social3">
