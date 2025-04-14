@@ -2730,36 +2730,102 @@ public function disburse($loan_id){
 		$this->load->view('admin/disburse_loan',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan]);
 	}
 
-	public function delete_loanDisbursed($loan_id){
-		ini_set("max_execution_time", 3600);
-		$this->load->model('queries');
-		$receive_deducted = $this->queries->get_sum_nonDeducted_fee($loan_id);
-		$blanch_id = $receive_deducted->blanch_id;
-        @$balance_nonDeducted = $this->queries->get_non_deducted_balance($blanch_id);
+  public function delete_loanDisbursed($loan_id)
+  {
+      ini_set("max_execution_time", 3600);
+      $this->load->model('queries');
+  
+      // 🧍‍♂️ Get the employee who is deleting the loan
+      $empl_id = $this->session->userdata('empl_id');
+      $empl_data = $this->queries->get_employee_data($empl_id);
+      $deleted_by = $empl_data ? $empl_data->empl_id : null;
+      $deleted_by_name = $empl_data ? $empl_data->empl_name : 'Unknown';
+  
+      // 🔁 STEP 1: Get loan data and save it to archive
+      $loan = $this->db->get_where('tbl_loans', ['loan_id' => $loan_id])->row();
+  
+      if ($loan) {
+          $loan->deleted_at = date('Y-m-d H:i:s');
+          $loan->deleted_by = $deleted_by;
+          $loan->deleted_by_name = $deleted_by_name;
+  
+          $this->db->insert('tbl_loan_archive', (array)$loan);
+      }
+  
+      // 🧮 STEP 2: Continue with your existing logic
+      $receive_deducted = $this->queries->get_sum_nonDeducted_fee($loan_id);
+      $blanch_id = $receive_deducted->blanch_id;
+      @$balance_nonDeducted = $this->queries->get_non_deducted_balance($blanch_id);
+  
+      $deductedNon_balance = @$balance_nonDeducted->non_balance;
+      $old_receive = $receive_deducted->total_receive;
+      $remain_nonBalance = $deductedNon_balance - $old_receive;
+  
+      if ($this->queries->remove_loandisbursed($loan_id)) {
+          $this->remove_nonDeducted_amount($blanch_id, $remain_nonBalance);
+          // $this->delete_from_tbl_pay($loan_id);
+          $this->delete_from_Deposttable($loan_id);
+          $this->delete_from_prevlecod($loan_id);
+          $this->delete_from_reciveTable($loan_id);
+          $this->delete_storePenart($loan_id);
+          $this->delete_payPenartTable($loan_id);
+          $this->delete_outstandLoan($loan_id);
+          $this->delete_loanPending($loan_id);
+          $this->delete_customer_report($loan_id);
+          $this->delete_outstand($loan_id);
+  
+          $this->session->set_flashdata("massage", 'Loan deleted  successfully');
+      } else {
+          $this->session->set_flashdata("error", 'Failed to delete loan.');
+      }
+  
+      return redirect('admin/disburse_loan');
+  }
 
-         $deductedNon_balance = @$balance_nonDeducted->non_balance;
-         $old_receive = $receive_deducted->total_receive;
-         $remain_nonBalance = $deductedNon_balance - $old_receive;
-             
-             // print_r($remain_nonBalance);
-             //          exit();
+  public function restore_loan($loan_id)
+{
+    $this->load->model('queries');
+    
+    // Get the archived loan
+    $archived_loan = $this->db->get_where('tbl_loan_archive', ['loan_id' => $loan_id])->row();
 
-		if($this->queries->remove_loandisbursed($loan_id));
-		   $this->remove_nonDeducted_amount($blanch_id,$remain_nonBalance);
-           $this->delete_from_tbl_pay($loan_id);
-           $this->delete_from_Deposttable($loan_id);
-           $this->delete_from_prevlecod($loan_id);
-           $this->delete_from_reciveTable($loan_id);
-           //$this->delete_storePenart($loan_id);
-           $this->delete_storePenart($loan_id);
-           $this->delete_payPenartTable($loan_id);
-           $this->delete_outstandLoan($loan_id);
-           $this->delete_loanPending($loan_id);
-           $this->delete_customer_report($loan_id);
-           $this->delete_outstand($loan_id);
-		$this->session->set_flashdata("massage",'Loan Deleted successfully');
-		return redirect('admin/disburse_loan');
-	}
+    if ($archived_loan) {
+        // Remove archive-specific fields
+        unset($archived_loan->deleted_at);
+        unset($archived_loan->deleted_by);
+        unset($archived_loan->deleted_by_name);
+
+        // Convert to array
+        $loan_data = (array) $archived_loan;
+
+        // Insert into main table
+        $this->db->insert('tbl_loans', $loan_data);
+
+        // Delete from archive
+        $this->db->delete('tbl_loan_archive', ['loan_id' => $loan_id]);
+
+        $this->session->set_flashdata('massage', 'Loan restored successfully.');
+    } else {
+        $this->session->set_flashdata('error', 'Loan not found in archive.');
+    }
+
+    redirect('admin/deleted_loans');
+}
+
+  
+
+
+  public function deleted_loans()
+  {
+      $this->load->model('queries');
+      $comp_id = $this->session->userdata('comp_id');
+      $data['deleted_loans'] = $this->queries->get_deleted_loans($comp_id);
+      
+      $this->load->view('admin/deleted_loans', $data);
+  }
+  
+
+
 	//delete from paytble
 	public function delete_from_tbl_pay($loan_id){
 		return $this->db->delete('tbl_pay',['loan_id'=>$loan_id]);
@@ -3202,6 +3268,7 @@ public function disburse($loan_id){
 //  echo "<pre>";
 //   print_r($sponsors);
 //            exit();
+
 
    
 
@@ -5247,6 +5314,43 @@ public function previous_transfor(){
 
 
 }
+
+
+public function restore_customer($customer_id)
+{
+    // Get archived customer
+    $this->load->model('queries');
+    $comp_id = $this->session->userdata('comp_id');
+
+    $archived_customer = $this->db->get_where('tbl_customer_archive', ['customer_id' => $customer_id])->row();
+
+  
+    
+
+    if ($archived_customer) {
+        // Remove archive-specific fields
+        unset($archived_customer->deleted_at);
+        unset($archived_customer->deleted_by);
+        unset($archived_customer->deleted_by_name);
+        unset($archived_customer->deleted_by_id);
+
+        // Convert to array
+        $customer_data = (array) $archived_customer;
+
+        // Insert into tbl_customer
+        $this->db->insert('tbl_customer', $customer_data);
+
+        // Optional: delete from archive
+        $this->db->delete('tbl_customer_archive', ['customer_id' => $customer_id]);
+
+        $this->session->set_flashdata('massage', 'Customer restored successfully.');
+    } else {
+        $this->session->set_flashdata('massage', 'Customer not found in archive.');
+    }
+
+    redirect('admin/deleted_customers'); // or wherever your deleted list is
+}
+
 
 
 
@@ -8421,102 +8525,110 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
  }
 
 
- public function delete_loanwith($loan_id){
-		ini_set("max_execution_time", 3600);
-		 $this->load->model('queries');
-		 $loan_with = $this->queries->get_loanDeletedata($loan_id);
-		 $balance = $loan_with->loan_aprove;
-		 $payment_method = $loan_with->method;
-		 $blanch_id = $loan_with->blanch_id;
-		 $comp_id = $loan_with->comp_id;
-		 $loan_status = $loan_with->loan_status;
+ public function delete_loanwith($loan_id) {
+  ini_set("max_execution_time", 3600);
+  $this->load->model('queries');
 
-         $depost_lecod = $this->queries->get_total_loanDeposit($loan_id);
-		 $loanDepost = $depost_lecod->total_loanDepost;
-         
-		 $blanch_account = $this->queries->get_amount_remainAmountBlanch($blanch_id,$payment_method);
-		 $blanchBalance_amount = $blanch_account->blanch_capital;
-		 $return_balance = $balance + $blanchBalance_amount;
+  // 🔄 Get loan data for deletion and backup
+  $loan_with = $this->queries->get_loanDeletedata($loan_id);
+  if (!$loan_with) {
+      $this->session->set_flashdata("massage", "Loan not found.");
+      return redirect('admin/loan_withdrawal');
+  }
 
-         $deducted_loan = $this->queries->get_amount_deducted($loan_id);
-         $total_receive_deducted = $this->queries->get_sum_receive_deducted($blanch_id);
-         $deducted_amount = $total_receive_deducted->deducted;
-         $old_deducted_data = $deducted_loan->deducted_balance;
-         $remain_deducted_balance = $deducted_amount - $old_deducted_data;
+  // ✅ STEP 1: Backup to archive
+  $empl_id = $this->session->userdata('empl_id');
+  $empl_data = $this->queries->get_employee_data($empl_id);
 
-         $receive_deducted = $this->queries->get_sum_nonDeducted_fee($loan_id);
-         @$balance_nonDeducted = $this->queries->get_non_deducted_balance($blanch_id);
+  $backup_data = (array) $loan_with;
+  $backup_data['deleted_at'] = date("Y-m-d H:i:s");
+ 
+  $backup_data['deleted_by_name'] = $empl_data->empl_name ?? 'Unknown';
 
-         $deductedNon_balance = @$balance_nonDeducted->non_balance;
-         $old_receive = $receive_deducted->total_receive;
-         $remain_nonBalance = $deductedNon_balance - $old_receive;
+  $this->db->insert('tbl_loan_archive', $backup_data); // Insert to backup table
 
-         //principal
-         $total_depost_principal = $this->queries->get_total_loan_principal($loan_id);
-         $principal_data = $total_depost_principal->total_principal;
-        //interest
-         $total_depost_interest = $this->queries->get_total_loan_interest($loan_id);
-         $interest_data = $total_depost_interest->total_interest;
-         
-         //remain blanch principal
-         $old_blanch_capital_princ = $this->queries->get_principal_remain($blanch_id,$payment_method,$loan_status);
-         $old_principal = $old_blanch_capital_princ->principal_balance;
-         //remove principal
-         $remove_principal = $old_principal - $principal_data;
+  // ✅ STEP 2: Continue with original logic
+  $balance = $loan_with->loan_aprove;
+  $payment_method = $loan_with->method;
+  $blanch_id = $loan_with->blanch_id;
+  $comp_id = $loan_with->comp_id;
+  $loan_status = $loan_with->loan_status;
 
-         //remain blanch interest
-         $remain_interest = $this->queries->get_interest_remain($blanch_id,$payment_method,$loan_status);
-         $old_interest = $remain_interest->capital_interest;
-         //remove interest
-         $remove_interest = $old_interest - $interest_data;
+  $depost_lecod = $this->queries->get_total_loanDeposit($loan_id);
+  $loanDepost = $depost_lecod->total_loanDepost;
 
-         $blanc_capital_remain = $this->queries->get_blanch_capital_balance($blanch_id,$payment_method);
-         $blanch_balance_account = $blanc_capital_remain->blanch_capital;
-         
-         //toa principal akaunti kuu
-         $bbpricipal = $blanch_balance_account -  $principal_data;
-         //toa interest akaunti kuu
-         $bbinterest = $blanch_balance_account - $interest_data;
+  $blanch_account = $this->queries->get_amount_remainAmountBlanch($blanch_id, $payment_method);
+  $blanchBalance_amount = $blanch_account->blanch_capital;
+  $return_balance = $balance + $blanchBalance_amount;
 
+  $deducted_loan = $this->queries->get_amount_deducted($loan_id);
+  $total_receive_deducted = $this->queries->get_sum_receive_deducted($blanch_id);
+  $deducted_amount = $total_receive_deducted->deducted;
+  $old_deducted_data = $deducted_loan->deducted_balance;
+  $remain_deducted_balance = $deducted_amount - $old_deducted_data;
 
-         if ($principal_data > $old_principal) {
-         	$this->update_main_account_blanch($blanch_id,$payment_method,$bbpricipal);
-         	 echo "chukua akaunti kuu principal";
-         }elseif($old_principal >= $principal_data){
+  $receive_deducted = $this->queries->get_sum_nonDeducted_fee($loan_id);
+  @$balance_nonDeducted = $this->queries->get_non_deducted_balance($blanch_id);
+  $deductedNon_balance = @$balance_nonDeducted->non_balance;
+  $old_receive = $receive_deducted->total_receive;
+  $remain_nonBalance = $deductedNon_balance - $old_receive;
 
-         $this->update_principal_amount_remain($blanch_id,$payment_method,$remove_principal,$loan_status);
-             echo "chukua mule mule principal";
-         }
+  $total_depost_principal = $this->queries->get_total_loan_principal($loan_id);
+  $principal_data = $total_depost_principal->total_principal;
 
-         if($interest_data > $old_interest) {
-         $this->update_main_interest_account($blanch_id,$payment_method,$bbinterest);
-         	echo "chukua akaunti kuu interest";
-         }elseif ($old_interest >=$interest_data) {
+  $total_depost_interest = $this->queries->get_total_loan_interest($loan_id);
+  $interest_data = $total_depost_interest->total_interest;
 
-         $this->remove_interest_account_balance($blanch_id,$payment_method,$remove_interest,$loan_status);
-         	echo "chukua mule mule interest";
-         }
-           $this->return_loan_withdrawal($comp_id,$blanch_id,$payment_method,$return_balance);
-		   $this->remove_deducted_balance_account($blanch_id,$remain_deducted_balance);
-           $this->remove_nonDeducted_amount($blanch_id,$remain_nonBalance);
-           $this->delete_from_tbl_pay($loan_id);
-           $this->delete_from_Deposttable($loan_id);
-           $this->delete_from_prevlecod($loan_id);
-           $this->delete_from_reciveTable($loan_id);
-           $this->delete_storePenart($loan_id);
-           $this->delete_storePenart($loan_id);
-           $this->delete_payPenartTable($loan_id);
-           $this->delete_outstandLoan($loan_id);
-           $this->delete_loanPending($loan_id);
-           $this->delete_customer_report($loan_id);
-           $this->delete_outstand($loan_id);
-           $this->delete_deducted_fee($loan_id);
-           $this->delete_prepaid_loan($loan_id);
-           $this->delete_total_pending($loan_id);
-		if($this->queries->remove_loandisbursed($loan_id)); 
-		$this->session->set_flashdata("massage",'Loan Deleted successfully');
-		return redirect('admin/loan_withdrawal');
-	}
+  $old_blanch_capital_princ = $this->queries->get_principal_remain($blanch_id, $payment_method, $loan_status);
+  $old_principal = $old_blanch_capital_princ->principal_balance;
+  $remove_principal = $old_principal - $principal_data;
+
+  $remain_interest = $this->queries->get_interest_remain($blanch_id, $payment_method, $loan_status);
+  $old_interest = $remain_interest->capital_interest;
+  $remove_interest = $old_interest - $interest_data;
+
+  $blanc_capital_remain = $this->queries->get_blanch_capital_balance($blanch_id, $payment_method);
+  $blanch_balance_account = $blanc_capital_remain->blanch_capital;
+
+  $bbpricipal = $blanch_balance_account - $principal_data;
+  $bbinterest = $blanch_balance_account - $interest_data;
+
+  if ($principal_data > $old_principal) {
+      $this->update_main_account_blanch($blanch_id, $payment_method, $bbpricipal);
+  } else {
+      $this->update_principal_amount_remain($blanch_id, $payment_method, $remove_principal, $loan_status);
+  }
+
+  if ($interest_data > $old_interest) {
+      $this->update_main_interest_account($blanch_id, $payment_method, $bbinterest);
+  } else {
+      $this->remove_interest_account_balance($blanch_id, $payment_method, $remove_interest, $loan_status);
+  }
+
+  $this->return_loan_withdrawal($comp_id, $blanch_id, $payment_method, $return_balance);
+  $this->remove_deducted_balance_account($blanch_id, $remain_deducted_balance);
+  $this->remove_nonDeducted_amount($blanch_id, $remain_nonBalance);
+  $this->delete_from_tbl_pay($loan_id);
+  $this->delete_from_Deposttable($loan_id);
+  $this->delete_from_prevlecod($loan_id);
+  $this->delete_from_reciveTable($loan_id);
+  $this->delete_storePenart($loan_id);
+  $this->delete_payPenartTable($loan_id);
+  $this->delete_outstandLoan($loan_id);
+  $this->delete_loanPending($loan_id);
+  $this->delete_customer_report($loan_id);
+  $this->delete_outstand($loan_id);
+  $this->delete_deducted_fee($loan_id);
+  $this->delete_prepaid_loan($loan_id);
+  $this->delete_total_pending($loan_id);
+
+  if ($this->queries->remove_loandisbursed($loan_id)) {
+      $this->session->set_flashdata("massage", "Loan Deleted successfully (and backup saved)");
+  }
+
+  return redirect('admin/loan_withdrawal');
+}
+
    
    public function remove_interest_account_balance($blanch_id,$payment_method,$remove_interest,$loan_status){
    	$sqldata="UPDATE `tbl_blanch_capital_interest` SET `capital_interest`= '$remove_interest' WHERE `blanch_id`= '$blanch_id' AND `trans_id`='$payment_method' AND `int_status`='$loan_status'";

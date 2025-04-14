@@ -602,6 +602,19 @@ public function get_allcutomer($comp_id){
        	   return $loan->result();
        }
 
+	   public function get_deleted_loans($comp_id)
+{
+    return $this->db->query("
+        SELECT a.*, c.f_name, c.m_name, c.l_name,c.phone_no, b.blanch_name, lt.loan_name
+        FROM tbl_loan_archive a
+        LEFT JOIN tbl_customer c ON c.customer_id = a.customer_id
+        LEFT JOIN tbl_blanch b ON b.blanch_id = a.blanch_id
+        LEFT JOIN tbl_loan_category lt ON lt.category_id = a.category_id
+        WHERE a.comp_id = '$comp_id'
+        ORDER BY a.loan_id DESC
+    ")->result();
+}
+
 
          public function get_DisbarsedLoanBlanch_data($blanch_id){
         //$date = date("Y-m-d");

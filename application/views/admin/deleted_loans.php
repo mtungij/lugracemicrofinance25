@@ -9,7 +9,7 @@
 <div class="col-lg-6 col-md-8 col-sm-12">
 <ul class="breadcrumb">
 <li class="breadcrumb-item"><a href="<?php echo base_url("admin/index"); ?>"><i class="icon-home"></i></a></li>                            
-<li class="breadcrumb-item active">Deleted Customers</li>
+<li class="breadcrumb-item active">Deleted Disbured Loans</li>
 </ul>
 </div>            
 
@@ -27,7 +27,7 @@
 <div class="col-lg-12">
 <div class="card">
 <div class="header">
-<h2>Deleted Customers </h2>
+<h2>Deleted Disbured Loans </h2>
 <div class="pull-right">
    <a href="" class="btn btn-primary" data-toggle="modal" data-target="#addcontact2"><i class="icon-pencil">Filter</i></a> 
 </div>    
@@ -39,66 +39,44 @@
             <tr>
                <th>S/No.</th>
                 <th>customer name</th>
-                <th>Gender</th>
                 <th>Phone number</th>
                 <th>Branch</th>
-                <th>Ward</th>
-                <th>Street</th>
-                <th>Status</th>
-                <th>deleted At</th>
-                <th>deleted By</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Deleted At</th>
+                <th>Deleted By</th>
                 <!-- <th>Action</th> -->
             </tr>
+
+            
+        
+           
+            
+           
         </thead>
        
         <tbody>
-    <?php $no = 1; ?>
-    <?php if (!empty($customers)): ?>
-        <?php foreach ($customers as $customer): ?>
+        <?php $no = 1; foreach ($deleted_loans as $loan): ?>
             <tr>
-                <td><?= $no++; ?></td>
-                <td><?= $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name; ?></td>
-                <td><?= $customer->gender; ?></td>
-                <td><?= $customer->phone_no; ?></td>
-                <td><?= $customer->blanch_name ?? '-'; ?></td>
-                <td><?= $customer->ward; ?></td>
-                <td><?= $customer->street; ?></td>
-                <td>
-                    <?php if ($customer->customer_status == 'open'): ?>
-                        <span class="badge badge-success">Active</span>
-                    <?php elseif ($customer->customer_status == 'close'): ?>
-                        <span class="badge badge-primary">Done</span>
-                    <?php elseif ($customer->customer_status == 'pending'): ?>
-                        <span class="badge badge-warning">Pending</span>
-                    <?php elseif ($customer->customer_status == 'out'): ?>
-                        <span class="badge badge-danger">Default</span>
-                    <?php endif; ?>
-                </td>
-
-                <td><?= $customer->deleted_at ?></td>
-                <td><?= $customer->deleted_by_name?></td>
+                <td><?= $no++ ?></td>
+                <td><?= $loan->f_name . ' ' . $loan->m_name . ' ' . $loan->l_name ?></td>
+                <td><?= $loan->phone_no ?></td>
+                <td><?= $loan->blanch_name ?></td>
+                <td><?= number_format($loan->loan_aprove) ?></td>
+                
+                <td><?= $loan->loan_name ?></td>
+                <td><?= $loan->deleted_at ?></td>
+                <td><?= $loan->deleted_by_name ?></td>
                 <!-- <td>
-    <a href="<//?= base_url("admin/restore_customer/{$customer->customer_id}"); ?>" 
-       class="btn btn-sm btn-success" 
-       onclick="return confirm('Are you sure you want to restore this customer?')">
-        <i class="icon-refresh"></i> Restore
+    <a href="</?= base_url("admin/restore_loan/{$loan->loan_id}") ?>" class="btn btn-success btn-sm"
+       onclick="return confirm('Are you sure you want to restore this loan?')">
+       Restore
     </a>
 </td> -->
 
-                <!-- <td>
-                    <a href="</?= base_url("admin/customer_profile/{$customer->customer_id}"); ?>" class="btn btn-sm btn-primary">
-                        <i class="icon-eye"></i>
-                    </a>
-                </td> -->
             </tr>
         <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="13" class="text-center">No deleted customers found.</td>
-        </tr>
-    <?php endif; ?>
-</tbody>
-
+    </tbody>
     </table>
    
 </div>

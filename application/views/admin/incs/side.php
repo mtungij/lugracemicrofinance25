@@ -99,6 +99,7 @@
                                 <ul>
                                     <li><a href="<?php echo base_url("admin/customer"); ?>">Register Customer</a></li>
                                     <li><a href="<?php echo base_url("admin/all_customer"); ?>">All Customer</a></li>
+                                    
                                 </ul>
                             </li>
                             <li>
@@ -117,13 +118,22 @@
                             <li><a href="<?php echo base_url("admin/teller_dashboard"); ?>"><i class="icon-list"></i>Teller Dashboard</a></li>
 
                             <li>
+                                <a href="#Authentication" class="has-arrow"><i class="icon-docs"></i><span>Activity Log</span></a>
+                                <ul>
+                               
+                                    <li><a href="<?php echo base_url("admin/deleted_customers"); ?>">Deleted Customer</a></li>
+                                    <li><a href="<?php echo base_url("admin/deleted_loans"); ?>">Deleted Disbured Loans</a></li>
+                                </ul>
+                            </li>
 
+                            <li>
                             <a href="#Pages" class="has-arrow"><i class="icon-docs"></i><span>Commnication</span></a>
                                 <ul>
                                     <li><a href="<?php echo base_url("admin/reminder_sms"); ?>">Via SMS</a> </li>
                                    
                                 </ul>
                             </li>
+
                         </ul>
                     </nav>
                     <br><br><br><br>
