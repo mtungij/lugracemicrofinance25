@@ -122,7 +122,7 @@
                                 <ul>
                                
                                     <li><a href="<?php echo base_url("admin/deleted_customers"); ?>">Deleted Customer</a></li>
-                                    <li><a href="<?php echo base_url("admin/deleted_loans"); ?>">Deleted Disbured Loans</a></li>
+                                    <li><a href="<?php echo base_url("admin/deleted_loans"); ?>">Deleted  Loans</a></li>
                                 </ul>
                             </li>
 
