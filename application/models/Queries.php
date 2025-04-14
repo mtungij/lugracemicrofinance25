@@ -5783,6 +5783,19 @@ public function get_branch_depost_with_interest_principal_customer($from, $to, $
 }
 
 
+public function get_deleted_customers_with_branch($comp_id)
+{
+    $this->db->select('tbl_customer_archive.*, tbl_blanch.blanch_name');
+    $this->db->from('tbl_customer_archive');
+    $this->db->join('tbl_blanch', 'tbl_blanch.blanch_id = tbl_customer_archive.blanch_id', 'left');
+    $this->db->where('tbl_customer_archive.comp_id', $comp_id);
+    $this->db->order_by('tbl_customer_archive.deleted_at', 'DESC');
+    return $this->db->get()->result();
+}
+
+
+
+
 
 public function get_previous_loan_with_total($from,$to,$blanch_id,$loan_status){
 	$data = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan_aprove,SUM(l.loan_int) AS total_loan_int FROM tbl_outstand ot LEFT JOIN tbl_loans l ON l.loan_id = ot.loan_id JOIN tbl_blanch b ON b.blanch_id = l.blanch_id JOIN tbl_customer c ON c.customer_id = l.customer_id JOIN tbl_loan_category lc ON lc.category_id = l.category_id JOIN tbl_account_transaction at ON at.trans_id = l.method WHERE ot.loan_stat_date between '$from' and '$to' AND l.blanch_id = '$blanch_id' ");

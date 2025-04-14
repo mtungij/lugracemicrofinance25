@@ -5131,26 +5131,55 @@ public function previous_transfor(){
  	     return redirect('admin/view_blanch_customer/'.$blanch_id);
  }
 
-  public function delete_customerData($customer_id){
-  	ini_set("max_execution_time", 3600);
- 	$this->load->model('queries');
- 	if($this->queries->remove_customer($customer_id));
-          $this->delete_from_paytable($customer_id);
-          $this->delete_from_subcustomer($customer_id);
-          $this->delete_from_loans($customer_id);
-          $this->delete_from_depost($customer_id);
-          $this->delete_from_prev_lecod($customer_id);
-          $this->delete_from_receive($customer_id);
-          $this->delete_from_store_penart($customer_id);
-          $this->delete_from_sponser($customer_id);
-          $this->delete_from_paypenart($customer_id);
-          $this->delete_from_outstand_loan($customer_id);
-          $this->delete_from_loanPending($customer_id);
-          $this->delete_from_customer_report($customer_id);
-
- 	     $this->session->set_flashdata('massage','Customer Deleted successfully');
- 	     return redirect('admin/all_customer');
+ public function delete_customerData($customer_id)
+ {
+     ini_set("max_execution_time", 3600);
+     $this->load->model('queries');
+ 
+     // Get employee info from session
+     $empl_id = $this->session->userdata('empl_id');
+     $empl_data = $this->queries->get_employee_data($empl_id);
+ 
+     // Get customer data
+     $customer = $this->db->get_where('tbl_customer', ['customer_id' => $customer_id])->row_array();
+ 
+     if ($customer) {
+         // Add deletion info
+         $customer['deleted_at'] = date('Y-m-d H:i:s');
+         $customer['deleted_by_id'] = $empl_id;
+         $customer['deleted_by_name'] = $empl_data->empl_name ?? 'Unknown';
+ 
+         // Archive customer
+         $this->db->insert('tbl_customer_archive', $customer);
+ 
+         // Delete from main table if archived successfully
+         if ($this->queries->remove_customer($customer_id)) {
+             $this->delete_from_paytable($customer_id);
+             $this->delete_from_subcustomer($customer_id);
+             $this->delete_from_loans($customer_id);
+             $this->delete_from_depost($customer_id);
+             $this->delete_from_prev_lecod($customer_id);
+             $this->delete_from_receive($customer_id);
+             $this->delete_from_store_penart($customer_id);
+             $this->delete_from_sponser($customer_id);
+             $this->delete_from_paypenart($customer_id);
+             $this->delete_from_outstand_loan($customer_id);
+             $this->delete_from_loanPending($customer_id);
+             $this->delete_from_customer_report($customer_id);
+ 
+             $this->session->set_flashdata('massage', 'Customer archived and deleted successfully');
+         } else {
+             $this->session->set_flashdata('massage', 'Failed to delete customer.');
+         }
+     } else {
+         $this->session->set_flashdata('massage', 'Customer not found.');
+     }
+ 
+     return redirect('admin/all_customer');
  }
+ 
+
+ 
  public function delete_from_paytable($customer_id){
  	return $this->db->delete('tbl_pay',['customer_id'=>$customer_id]);	
  }
@@ -5199,6 +5228,30 @@ public function previous_transfor(){
     public function delete_from_customer_report($customer_id){
  	return $this->db->delete('tbl_customer_report',['customer_id'=>$customer_id]);	
  }
+
+
+ public function deleted_customers()
+{
+  $this->load->model('queries');
+  $comp_id = $this->session->userdata('comp_id');
+  $data['customers'] = $this->queries->get_deleted_customers_with_branch($comp_id);
+
+
+  // echo "<pre>";
+  // print_r($deleted_customer );
+  // echo "<pre>";
+  // exit();
+
+  $this->load->view('admin/deleted_customers', $data);
+
+
+
+}
+
+
+
+
+
 
 
  public function cash_transaction(){
