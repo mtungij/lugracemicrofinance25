@@ -3675,7 +3675,6 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
 	      $blanch_id = $depost['blanch_id'];
 	      $p_method = $depost['p_method'];
         $jina_wakala = $depost['jina_wakala'];
-        $zidi = $depost['zidi'];
 	      $loan_id = $depost['loan_id'];
 	      $deposit_date = $depost['deposit_date'];
 	      $depost = filter_var($depost['depost'], FILTER_SANITIZE_NUMBER_INT);
@@ -3699,7 +3698,13 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
 	      $comp_id = $this->session->userdata('comp_id');
 	      $company_data = $this->queries->get_companyData($comp_id);
 	      $loan_restoration = $this->queries->get_restoration_loan($loan_id);
-	      $empl_id = $loan_restoration->empl_id;
+	  
+        
+        $empl_id = $this->session->userdata('empl_id');
+        $manager_data = $this->queries->get_manager_data($empl_id);
+        $empl_data = $this->queries->get_employee_data($empl_id);
+
+        $empl_id = $loan_restoration->empl_id;
 	      $date_show = $loan_restoration->date_show;
 	      $company = $this->queries->get_comp_data($comp_id);
 
@@ -3707,6 +3712,11 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
 
 	      // print_r($day_id);
 	      //       exit();
+
+        $role = $empl_data->empl_name;
+
+          //  print_r( $role );
+	        //     exit();
          
 
 // $loan_data = $this->queries->get_loanDisbarsed($loan_id);
@@ -3747,7 +3757,8 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
 		  $depost_money = $blanch_capital + $new_depost;
                
 	      //admin role
-	      $role = $admin_data->admin_name;
+	      // $role = $admin_data->admin_name;
+        $role = $empl_data->username;
           
 
 	      $out_data = $this->queries->getOutstand_loanData($loan_id);
@@ -10535,7 +10546,7 @@ public function sendsms($phone,$massage){
 	//public function sendsms(){f
 	//$phone = '255628323760';
 	//$massage = 'mapenzi yanauwa';
-	$api_key = 'UyLAlx3bXeDIKjQ5qBeg0UGe8s';
+	$api_key = 'UyLAlx3bXeDIKjQ5qBeg0UGe8s';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 	//$api_key = 'qFzd89PXu1e/DuwbwxOE5uUBn6';
 	//$curl = curl_init();
   $ch = curl_init();

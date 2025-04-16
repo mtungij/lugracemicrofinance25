@@ -63,6 +63,7 @@
                                         <th>Restoration</th>
                                         <th>Withdrawal Date</th>
                                         <th>End Date</th>
+                                        <th>Action</th>
                                         </tr>
                                     </thead>
                                    
@@ -106,6 +107,32 @@ $total_loan_int += $loan_aproveds->loan_int;
                     <td><?php echo number_format($loan_aproveds->restration); ?></td> 
                     <td><?php echo $loan_aproveds->loan_stat_date; ?></td> 
                     <td><?php echo substr($loan_aproveds->loan_end_date, 0, 10); ?></td> 
+                    <td>
+                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   Action
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                      <?php if ($loan_aproveds->penat_status == 'NO') {
+                                             ?>
+                         <a class="dropdown-item" href="<?php echo base_url("admin/start_penart/$loan_aproveds->loan_id"); ?>" onclick="return confirm('Are You Sure?')"><i class="icon-pencil">Start Penart</i></a>
+                    
+                   <?php }elseif ($loan_aproveds->penat_status == 'YES') {
+                                             ?>
+                <a class="dropdown-item" href="<?php //echo base_url("admin/view_Dataloan/{$loan_pendings->customer_id}/{$loan_pendings->comp_id}") ?>" data-toggle="modal" data-target="#addcontact1<?php echo $loan_aproveds->loan_id; ?>"><i class="icon-pencil">Stop Penart</i></a>
+                  
+                        <?php } ?>
+                    
+                  
+
+                     <a class="dropdown-item" href="<?php echo base_url("admin/delete_loanwith/{$loan_aproveds->loan_id}"); ?>" onclick="return confirm('Are you sure?')"><i class="icon-trash">Delete</i></a>
+                    </div>
+                </div>
+                </div>
+                                        
+                                        </td> 
                 </tr>
                 
             <?php endforeach; ?>
@@ -140,6 +167,32 @@ $total_loan_int += $loan_aproveds->loan_int;
                 <td><?php echo number_format($loan_aproveds->restration); ?></td> 
                 <td><?php echo $loan_aproveds->loan_stat_date; ?></td> 
                 <td><?php echo substr($loan_aproveds->loan_end_date, 0, 10); ?></td> 
+                <td>
+                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   Action
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                      <?php if ($loan_aproveds->penat_status == 'NO') {
+                                             ?>
+                         <a class="dropdown-item" href="<?php echo base_url("admin/start_penart/$loan_aproveds->loan_id"); ?>" onclick="return confirm('Are You Sure?')"><i class="icon-pencil">Start Penart</i></a>
+                    
+                   <?php }elseif ($loan_aproveds->penat_status == 'YES') {
+                                             ?>
+                <a class="dropdown-item" href="<?php //echo base_url("admin/view_Dataloan/{$loan_pendings->customer_id}/{$loan_pendings->comp_id}") ?>" data-toggle="modal" data-target="#addcontact1<?php echo $loan_aproveds->loan_id; ?>"><i class="icon-pencil">Stop Penart</i></a>
+                  
+                        <?php } ?>
+                    
+                  
+
+                     <a class="dropdown-item" href="<?php echo base_url("admin/delete_loanwith/{$loan_aproveds->loan_id}"); ?>" onclick="return confirm('Are you sure?')"><i class="icon-trash">Delete</i></a>
+                    </div>
+                </div>
+                </div>
+                                        
+                                        </td> 
             </tr>
         <?php endforeach; ?>
     <?php endif; ?>

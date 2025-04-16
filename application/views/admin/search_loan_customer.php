@@ -339,7 +339,7 @@
                                     @$end_deposit = $this->queries->get_end_deposit_time($customer_loan->loan_id);
                                     ?>
 
-                                    <?php //print_r($end_deposit); ?>
+                                    <?php print_r($end_deposit); ?>
 
                                     <?php foreach ($loan_desc as $payisnulls): ?>
                                         <tr>
