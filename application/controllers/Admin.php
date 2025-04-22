@@ -13,7 +13,7 @@ class Admin extends CI_Controller {
     $today_penart = $this->queries->get_total_penartToday($comp_id);
     $prepaid_today = $this->queries->prepaid_pay($comp_id);
 
-     $total_received = $this->queries->get_sumReceived_amount($comp_id);
+    
      $prepaid_today = $this->queries->prepaid_pay($comp_id);
      $total_loan_fee = $this->queries->get_total_loanFeereconce($comp_id);
      $today_income = $this->queries->get_today_income($comp_id);
@@ -63,6 +63,8 @@ class Admin extends CI_Controller {
   $total_withdraw_last_month = $this->queries-> get_total_withdrawal_last_month($comp_id);
   $monthly_income = $this ->queries->get_monthly_income_detail($comp_id);
   $total_monthly_income =$this->queries->get_sum_monthly_income($comp_id);
+
+
   $rejesho = $this->queries->get_total_recevable($comp_id);
   $total_malazo= $this->queries->get_total_malazo_pendingComp($comp_id);
   $sugus= $this->queries->get_outstand_sixmonth_loan_company($comp_id);
@@ -10542,20 +10544,29 @@ public function send_staff_sms($empl_id,$comp_id,$loan_status){
 // return true;
 // }
 
+
 public function sendsms($phone,$massage){
 	//public function sendsms(){f
 	//$phone = '255628323760';
 	//$massage = 'mapenzi yanauwa';
-	$api_key = 'UyLAlx3bXeDIKjQ5qBeg0UGe8s';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+	$api_key = 'Su33xZCzIDPALbL4';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 	//$api_key = 'qFzd89PXu1e/DuwbwxOE5uUBn6';
 	//$curl = curl_init();
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL,"https://galadove.loan-pocket.com/api/v1/receive/action/send/sms");
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS,
-            'apiKey='.$api_key.'&phoneNumber='.$phone.'&messageContent='.$massage);
+  $url = "https://sms-api.kadolab.com/api/send-sms";
+  $token = "10|U9Ezfo9IcXqzS77yftLLqKLJ518mOBjMdglthocJ7d72b305";
 
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  $ch = curl_init($url);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer '. $token,
+    'Content-Type: application/json',
+  ]);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    "phoneNumbers" => ["+$phone"],
+    "message" => $massage
+  ]));
+
 $server_output = curl_exec($ch);
 curl_close ($ch);
 
