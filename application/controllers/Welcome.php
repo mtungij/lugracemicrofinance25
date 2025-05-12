@@ -763,27 +763,21 @@ $sqldata="UPDATE `tbl_customer` SET `customer_status`= 'close' WHERE `customer_i
  // 15:00
 //sending receivable
 public function Send_reminder_automatic(){
-    $today = date('Y-m-d');
-    $comp_id = 164;
+$today = date('Y-m-d');
+ $comp_id = 164;
+$data = $this->db->query("SELECT * FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id WHERE l.comp_id = '$comp_id' AND l.dep_status = 'open' AND l.date_show = '$today' AND l.loan_status = 'withdrawal'");
+	
+	$auto_reminder =  $data->result();
 
-    $query = "SELECT * FROM tbl_loans l 
-              LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
-              WHERE l.comp_id = '$comp_id' 
-              AND l.dep_status = 'open' 
-              AND DATE(l.date_show) = '$today' 
-              AND l.loan_status = 'withdrawal'";
+	   echo "<pre>";
+	print_r($auto_reminder);
+	     exit();
 
-    $data = $this->db->query($query);
+	foreach ($auto_reminder as $auto_reminders) {
+	$this->send_reminder_auto_receivable($auto_reminders->comp_id,$auto_reminders->customer_id,$auto_reminders->loan_id);
+	}
 
-  
-
-    $auto_reminder =  $data->result();
-
-    foreach ($auto_reminder as $auto_reminders) {
-        $this->send_reminder_auto_receivable($auto_reminders->comp_id, $auto_reminders->customer_id, $auto_reminders->loan_id);
-    }
 }
-
 
 
 
