@@ -777,11 +777,7 @@ $query = $this->db->query("
 
 $result = $query->result();
 	
-	
 
-	   echo "<pre>";
-	print_r($result);
-	     exit();
 
 	foreach ($result as $auto_reminders) {
 	$this->send_reminder_auto_receivable($auto_reminders->comp_id,$auto_reminders->customer_id,$auto_reminders->loan_id);
