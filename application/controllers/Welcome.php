@@ -775,8 +775,7 @@ public function Send_reminder_automatic(){
 
     $data = $this->db->query($query);
 
-    echo $this->db->last_query(); // For debugging
-    echo "<pre>"; print_r($data); exit();
+  
 
     $auto_reminder =  $data->result();
 
