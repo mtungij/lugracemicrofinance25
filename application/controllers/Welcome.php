@@ -771,7 +771,8 @@ $query = $this->db->query("
     FROM tbl_loans l 
     JOIN tbl_customer c ON l.customer_id = c.customer_id 
     WHERE l.comp_id = '$comp_id' 
-    AND DATE(l.date_show) = '$today'
+    AND DATE(l.date_show) = '$today' 
+    AND l.loan_status = 'withdrawal'
 ");
 
 $result = $query->result();
