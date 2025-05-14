@@ -338,8 +338,17 @@
                                     @$total_deposit_penart = $this->queries->get_total_paypenart($customer_loan->loan_id);
                                     @$end_deposit = $this->queries->get_end_deposit_time($customer_loan->loan_id);
                                     ?>
+                                      
+                                    <?php 
 
-                                    <?php print_r($end_deposit); ?>
+                                   
+                                    
+
+                                 echo "<pre>";
+  print_r($loan_desc);
+          
+                                    
+                                    ?>
 
                                     <?php foreach ($loan_desc as $payisnulls): ?>
                                         <tr>

@@ -3334,6 +3334,9 @@ public function create_withdrow_balance($customer_id){
 		  //        exit();
 		 
 		  $day_loan = $this->queries->get_loan_day($loan_id);
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $empl_data = $this->queries->get_employee_data($empl_id);
 		  $admin_data = $this->queries->get_admin_role($comp_id);
 		  $company_data = $this->queries->get_companyData($comp_id);
           $day = $day_loan->day;
@@ -3395,7 +3398,7 @@ public function create_withdrow_balance($customer_id){
 		  $withMoney = ($blanch_capital) - ($new_balance + $sum_total_loanFee);
            
           //admin role
-          $role = $admin_data->role;
+          $role =  $empl_data->empl_name;
              
 		  $datas_balance = $this->queries->get_remainbalance($customer_id);
 		  $customer_data = $this->queries->get_customerData($customer_id);
@@ -5377,7 +5380,10 @@ public function restore_customer($customer_id)
  	$cash = $this->queries->get_cash_transaction($comp_id);
  	$sum_depost = $this->queries->get_sumCashtransDepost($comp_id);
  	$sum_withdrawls = $this->queries->get_cash_transaction_sum($comp_id);
-
+  $paytoday  = $this->queries->get_total_pay_today($comp_id);
+  //  echo "<pre>";
+ 	//    print_r( $paytoday);
+ 	//          exit();
  	$sum_deducted = $this->queries->get_total_deducted_income_today($comp_id);
  	$sum_paid_penart = $this->queries->get_paid_paenart_today($comp_id);
  	$blanch = $this->queries->get_blanch($comp_id);
@@ -5401,7 +5407,7 @@ public function restore_customer($customer_id)
  	   //  echo "<pre>";
  	   // print_r($sugu_wateja);
  	   //       exit();
- 	$this->load->view('admin/cash_transaction',['cash'=>$cash,'total_zidi_today'=> $total_zidi_today,'sum_depost'=>$sum_depost,'sum_withdrawls'=>$sum_withdrawls,'blanch'=>$blanch,'sum_deducted'=>$sum_deducted,'sum_paid_penart'=>$sum_paid_penart,'account_deposit'=>$account_deposit,'default_list'=>$default_list,'toyal_default'=>$toyal_default,'withdrawal_account'=>$withdrawal_account,'total_code_no'=>$total_code_no,'deducted_fee'=>$deducted_fee,'penart_paid'=>$penart_paid,'miamala'=>$miamala,'total_miamala'=>$total_miamala,'hai_wateja'=>$hai_wateja,'sugu_wateja'=>$sugu_wateja]);
+ 	$this->load->view('admin/cash_transaction',['cash'=>$cash,'paytoday'=>$paytoday,'total_zidi_today'=> $total_zidi_today,'sum_depost'=>$sum_depost,'sum_withdrawls'=>$sum_withdrawls,'blanch'=>$blanch,'sum_deducted'=>$sum_deducted,'sum_paid_penart'=>$sum_paid_penart,'account_deposit'=>$account_deposit,'default_list'=>$default_list,'toyal_default'=>$toyal_default,'withdrawal_account'=>$withdrawal_account,'total_code_no'=>$total_code_no,'deducted_fee'=>$deducted_fee,'penart_paid'=>$penart_paid,'miamala'=>$miamala,'total_miamala'=>$total_miamala,'hai_wateja'=>$hai_wateja,'sugu_wateja'=>$sugu_wateja]);
  }
 
  public function cash_transaction_blanch(){

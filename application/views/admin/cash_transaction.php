@@ -71,11 +71,11 @@ foreach ($cash as $cashs) {
                                    
                                     <tbody>
                                         <?php $no = 1; ?>
-                                <?php foreach ($cash as $cashs): ?>
+                                <?php foreach ($paytoday as $cashs): ?>
                                               <tr>
                                     <td><?php echo $no++; ?>.</td>
                                     <td><?php echo $cashs->blanch_name; ?></td>
-                                    <td><?php echo $cashs->empl_name; ?></td>
+                                    <td><?php echo $cashs->emply; ?></td>
                                     <td><?php echo $cashs->f_name; ?> <?php echo $cashs->m_name; ?> <?php echo $cashs->l_name; ?></td>
                                     <td><?php echo $cashs->phone_no; ?></td>
                                     <td>    <?php if ($cashs->depost == TRUE) {
@@ -86,27 +86,29 @@ foreach ($cash as $cashs) {
                                      -
                                      <?php } ?></td>
                                      <td>
-                                        <?php if ($cashs->deposit_account == TRUE) {
+                                        <?php if ($cashs->account_name == TRUE) {
                                          ?>
-                                        <?php echo $cashs->deposit_account; ?>
+                                        <?php echo $cashs->account_name; ?>
                                     <?php }else{ ?>
                                         -
                                         <?php } ?>
                                             
                                         </td>
                                     <td>
-                                        <?php if ($cashs->withdraw == TRUE) {
+                                        <?php  if (isset($cashs->description) && $cashs->description === 'CASH WITHDRAWALS') 
+                                        
+                                        {
                                          ?>
-                                        <?php echo number_format($cashs->loan_aprov); ?>
-                                    <?php }elseif ($cashs->withdraw == FALSE) {
+                                        <?php echo number_format($cashs->loan_aprove); ?>
+                                    <?php }elseif (isset($row->description)) {
                                      ?>
                                      -
                                      <?php } ?>
                                     </td>
                                     <td>
-                                        <?php if ($cashs->withdrawal_account == TRUE) {
+                                        <?php if ($cashs->account_name == TRUE) {
                                          ?>
-                                        <?php echo $cashs->withdrawal_account; ?>
+                                        <?php echo $cashs->account_name; ?>
                                     <?php }else{ ?>
                                         -
                                         <?php } ?>
@@ -114,8 +116,8 @@ foreach ($cash as $cashs) {
                                         </td>
                                     <!--     <td><?php //echo number_format($cashs->total_deducted); ?></td>
                                         <td><?php //echo number_format($cashs->total_penartPaid); ?></td> -->
-                                    <td><?php echo $cashs->lecod_day; ?></td>
-                                    <td><?php echo $cashs->time_rec; ?></td>
+                                    <td><?php echo $cashs->date_data; ?></td>
+                                    <td><?php echo $cashs->date_data; ?></td>
                                     <td>
                                         <?php if ($cashs->depost == TRUE) {
                                          ?>

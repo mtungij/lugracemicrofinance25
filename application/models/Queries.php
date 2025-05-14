@@ -1612,6 +1612,37 @@ public function get_search_dataCustomer($customer_id){
      );
      }
 
+	 public function get_total_pay_today($comp_id) {
+		$today = date('Y-m-d');
+	
+		$data = $this->db->query("
+        SELECT 
+            p.*,            -- tbl_pay
+            l.*,            -- tbl_loans
+            at.*,           -- tbl_account_transaction
+            c.*,            -- tbl_customer
+            b.*             -- tbl_blanch
+        FROM tbl_pay p
+        LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id
+        LEFT JOIN tbl_account_transaction at ON at.trans_id = p.p_method
+        LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id
+        LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        WHERE l.comp_id = '$comp_id'
+          AND DATE(p.date_data) = '$today'
+          AND l.loan_status = 'withdrawal'
+          AND p.emply != 'SYSTEM WITHDRAWAL'
+		  AND p.emply != 'admin'
+        ORDER BY p.pay_id DESC
+    ");
+
+      
+	
+		return $data->result();
+	}
+	
+	
+	
+
 
   public function get_sum_depostLoan($loan_id){
     	$loan = $this->db->query("SELECT SUM(p.depost) AS depos FROM tbl_prev_lecod p  WHERE p.loan_id = '$loan_id'  GROUP BY p.loan_id ");
