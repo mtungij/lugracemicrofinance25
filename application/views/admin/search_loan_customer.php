@@ -344,9 +344,7 @@
                                    
                                     
 
-                                 echo "<pre>";
-  print_r($loan_desc);
-          
+
                                     
                                     ?>
 
