@@ -37,69 +37,71 @@
                              </div>
                           <div class="body">
                             <div class="table-responsive">
-                                <table class="table table-hover js-basic-example dataTable table-custom">
-                                    <thead class="thead-primary">
-                                       <th>S/No.</th>
-                                        <th>Branch Name</th>
-                                        <th>Customer Name</th>
-                                        <th>Phone Number</th>
-                                        <th>Loan Amount</th>
-                                        <th>Duration Type</th>
-                                        <th>Pending Amount</th>
-                                        <th>Penart</th>
-                                        <th>Date</th>
-                                    </thead>
-                                   
-                                    <tbody>
-                                        <?php $no = 1; ?>
-                                <?php foreach ($new_pending as $new_pendings): ?>
-                                              <tr>
-                                    <td><?php echo $no++; ?>.</td>
-                                    
-                                    <td><?php echo $new_pendings->blanch_name; ?></td>
-                                    <td><?php echo $new_pendings->f_name; ?> <?php echo $new_pendings->m_name; ?> <?php echo $new_pendings->l_name; ?></td>
-                                    <td><?php echo $new_pendings->phone_no; ?></td>
-                                    <td><?php echo number_format($new_pendings->loan_int); ?></td>
-                                    <td>
-                                      <?php if($new_pendings->day == '1'){ ?>
-                                            <?php echo "Daily"; ?>
-                                        <?php //echo $loan_pends->return_day; ?>
-                                        <?php }elseif ($new_pendings->day == '7'){
-                                            echo "Weekly";
-                                         ?>
-                                         <?php }elseif ($new_pendings->day == '30' || $new_pendings->day == '31' || $new_pendings->day == '28' || $new_pendings->day == '29') {
-                                            echo "Monthly";
-                                          ?>
-                                          <?php } ?>
-                                            
-                                        </td>
-                                    <td><?php echo number_format($new_pendings->total_pend); ?></td>
-                                    <td>
-                                        <?php if ($new_pendings->total_penart < $new_pendings->total_pay_penart) {
-                                        ?>
-                                        0
-                                    <?php  }else{ ?>
-                                        <?php echo number_format($new_pendings->total_penart - $new_pendings->total_pay_penart); ?>
-                                        <?php } ?>
-                                            
-                                        </td>
-                                    <td><?php echo $new_pendings->date; ?></td>
-                                    </tr>
+                            <?php
+$total_loan_amount = 0;
+$total_pending_amount = 0;
+$total_penalty = 0;
+$no = 1;
+?>
 
-                                    <?php endforeach; ?>
-                                    <tr>
-                                        <td><b>TOTAL:</b></td>
-                                        <td></td>
-                                        <td><b><?php //echo number_format($total_allblanch->total_with_loan); ?></b></td>
-                                        <td><b><?php //echo number_format($total_allblanch->total_loan_int); ?></b></td>
-                                        <td><b><?php //echo number_format($total_allblanch->total_depost); ?></b></td>
-                                        <td><b><?php //echo number_format($total_allblanch->total_loan_int - $total_allblanch->total_depost); ?></b></td>
-                                        <td><b><?php echo number_format($total_pending_new->total_pending); ?></b></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<table class="table table-hover js-basic-example dataTable table-custom">
+    <thead class="thead-primary">
+        <tr>
+            <th>S/No.</th>
+            <th>Branch Name</th>
+            <th>Customer Name</th>
+            <th>Phone Number</th>
+            <th>Loan Amount</th>
+            <th>Duration Type</th>
+            <th>Pending Amount</th>
+            <th>Penalty</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($new_pending as $new_pendings): ?>
+            <?php
+            $penalty = max(0, $new_pendings->total_penart - $new_pendings->total_pay_penart);
+            $total_loan_amount += $new_pendings->loan_int;
+            $total_pending_amount += $new_pendings->total_pend;
+            $total_penalty += $penalty;
+            ?>
+            <tr>
+                <td><?php echo $no++; ?>.</td>
+                <td><?php echo $new_pendings->blanch_name; ?></td>
+                <td><?php echo $new_pendings->f_name . ' ' . $new_pendings->m_name . ' ' . $new_pendings->l_name; ?></td>
+                <td><?php echo $new_pendings->phone_no; ?></td>
+                <td><?php echo number_format($new_pendings->loan_int); ?></td>
+                <td>
+                    <?php
+                    if ($new_pendings->day == '1') {
+                        echo "Daily";
+                    } elseif ($new_pendings->day == '7') {
+                        echo "Weekly";
+                    } elseif (in_array($new_pendings->day, ['28', '29', '30', '31'])) {
+                        echo "Monthly";
+                    }
+                    ?>
+                </td>
+                <td><?php echo number_format($new_pendings->total_pend); ?></td>
+                <td><?php echo number_format($penalty); ?></td>
+                <td><?php echo $new_pendings->date; ?></td>
+            </tr>
+        <?php endforeach; ?>
+
+        <!-- Total Row -->
+        <tr>
+            <td><b>TOTAL:</b></td>
+            <td colspan="3"></td>
+            <td><b><?php echo number_format($total_loan_amount); ?></b></td>
+            <td></td>
+            <td><b><?php echo number_format($total_pending_amount); ?></b></td>
+            <td><b><?php echo number_format($total_penalty); ?></b></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
                             </div>
                         </div>
 

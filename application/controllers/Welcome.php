@@ -928,7 +928,7 @@ curl_close ($ch);
 	public function logout(){
 		$this->session->unset_userdata("comp_id");
 		$this->session->set_flashdata('massage',$this->lang->line('logout_menu'));
-		return  redirect("welcome/index");
+		return  redirect("welcome/Employee_signin");
 	}
 
 	//Manager log out
