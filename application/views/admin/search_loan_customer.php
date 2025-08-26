@@ -550,7 +550,7 @@
     <div id="mobilePaymentFields" style="display: none;">
     <div class="col-md-6 col-6">
         <span> Wakala</span>
-        <input type="text" class="form-control" name="jina_wakala" placeholder="Jina la Wakala">
+        <input type="text" class="form-control" name="jina_wakarecola" placeholder="Jina la Wakala">
     </div>
    
 </div>

@@ -80,7 +80,7 @@ $db['default'] = array(
 	'password' => 'phamasoft',
 	// 'database' => 'nachafinancial',
 	
-	'database' => 'lugrace_db',
+	'database' => 'emid_credit',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
