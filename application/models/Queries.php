@@ -31,6 +31,12 @@ class Queries extends CI_Model {
 		return $this->db->insert('tbl_company',$data);
 	}
 
+	public function employee_user_by_phone($empl_no)
+{
+    return $this->db->where('empl_no', $empl_no)->get('tbl_employee')->row();
+}
+
+
 	public function insert_blanch($data){
 		return $this->db->insert('tbl_blanch',$data);
 	}
