@@ -105,166 +105,76 @@ class Welcome extends CI_Controller {
 		$this->load->view('home/employee');
 	}
 
+public function Employee_signin()
+{
+    $this->form_validation->set_rules('empl_no', 'Employee Phone number', 'required');
+    $this->form_validation->set_rules('password', 'Password', 'required');
+    $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
 
-	public function Employee_signin(){
-		$this->form_validation->set_rules('empl_no','Employee Phone number','required');
-		$this->form_validation->set_rules('password','password','required');
-		$this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
-		if ($this->form_validation->run()){
-			$empl_no = $this->input->post('empl_no');
-			$password = sha1($this->input->post('password'));
-			$this->load->model('queries');
-			$userexit = $this->queries->employee_user_data($empl_no,$password);
-			     //  echo "<pre>";
-			     // print_r($userexit);
-			     //           exit();
-		if ($userexit){
-				if ($userexit->position_id == '1') {
-					$sessionData = [
-					'empl_id' => $userexit->empl_id,
-					//'comp_id' => $userexit->comp_id,
-					'blanch_id' => $userexit->blanch_id,
-					'username' => $userexit->username,
-					'empl_name' => $userexit->empl_name,
-					];
-					 // echo "<pre>";
-			   //   print_r($userexit);
-			   //             exit();
-					if ($userexit->empl_status == 'open'){
-                      	$this->session->set_userdata($sessionData);
-                      	$this->session->set_flashdata('massage',$this->lang->line("login_menu"));
-                      	return redirect('oficer/index');
-                      }elseif ($userexit->empl_status == 'close') {
+    if ($this->form_validation->run()) {
+        $empl_no = $this->input->post('empl_no');
+        $plain_password = $this->input->post('password');
+
+        $this->load->model('queries');
+        // Get user by phone number only (no password check yet)
+        $user = $this->queries->employee_user_by_phone($empl_no);
+
+        if ($user) {
+            // --- Password verification logic ---
+            $sha1_pass = sha1($plain_password);
+
+            $is_valid = false;
+
+            // 1️⃣ If DB password looks like bcrypt ($2y$...), use password_verify
+            if (preg_match('/^\$2y\$/', $user->password)) {
+                if (password_verify($plain_password, $user->password)) {
+                    $is_valid = true;
+                }
+            }
+            // 2️⃣ Otherwise, compare with old SHA1 hash
+            elseif ($user->password === $sha1_pass) {
+                $is_valid = true;
+            }
+
+            // --- If password is valid ---
+            if ($is_valid) {
+                $sessionData = [
+                    'empl_id' => $user->empl_id,
+                    'comp_id' => $user->comp_id,
+                    'blanch_id' => $user->blanch_id,
+                    'username' => $user->username,
+                    'empl_name' => $user->empl_name,
+                    'position_id' => $user->position_id,
+                ];
+
+                // Check employee status
+                if ($user->empl_status == 'open') {
                     $this->session->set_userdata($sessionData);
-                    $this->session->set_flashdata('mass',$this->lang->line("blocked_menu"));
-					return redirect("welcome/employee_login");
-                      }
-				}elseif($userexit->position_id == '2'){
-					$sessionData = [
-					'empl_id' => $userexit->empl_id,
-					//'comp_id' => $userexit->comp_id,
-					'blanch_id' => $userexit->blanch_id,
-					'username' => $userexit->username,
-					'empl_name' => $userexit->empl_name,
-					];
-                    
+                    $this->session->set_flashdata('massage', $this->lang->line("login_menu"));
 
-					if ($userexit->empl_status == 'open'){
-                      	$this->session->set_userdata($sessionData);
-                      	$this->session->set_flashdata('massage',$this->lang->line("login_menu"));
-                      	return redirect('oficer/index');
-                      }elseif ($userexit->empl_status == 'close') {
-                    $this->session->set_userdata($sessionData);
-                    $this->session->set_flashdata('mass',$this->lang->line("blocked_menu"));
-					return redirect("welcome/employee_login");
-                      }
+                    // Redirect by position
+                    if ($user->position_id == '22') {
+                        return redirect('admin/index');
+                    } else {
+                        return redirect('oficer/index');
+                    }
+                } else {
+                    $this->session->set_flashdata('mass', $this->lang->line("blocked_menu"));
+                    return redirect("welcome/employee_login");
+                }
+            } else {
+                $this->session->set_flashdata('mass', $this->lang->line("invalid_account_menu"));
+                return redirect("welcome/employee_login");
+            }
+        } else {
+            $this->session->set_flashdata('mass', $this->lang->line("invalid_account_menu"));
+            return redirect("welcome/employee_login");
+        }
+    } else {
+        $this->employee_login();
+    }
+}
 
-				}elseif($userexit->position_id == '6'){
-					$sessionData = [
-					'empl_id' => $userexit->empl_id,
-					//'comp_id' => $userexit->comp_id,
-					'blanch_id' => $userexit->blanch_id,
-					'username' => $userexit->username,
-					'empl_name' => $userexit->empl_name,
-					];
-        //       echo "<pre>";
-        // print_r($userexit);
-        //      exit();
-				
-
-				   if ($userexit->empl_status == 'open'){
-                   $this->session->set_userdata($sessionData);
-                   $this->session->set_flashdata('massage',$this->lang->line("login_menu"));
-                    return redirect('oficer/index');
-                  }elseif ($userexit->empl_status == 'close') {
-                    $this->session->set_userdata($sessionData);
-                    $this->session->set_flashdata('mass',$this->lang->line("blocked_menu"));
-				  return redirect("welcome/employee_login");
-                      }
-
-				}elseif ($userexit->position_id == '17') {
-					$sessionData = [
-					'empl_id' => $userexit->empl_id,
-					//'comp_id' => $userexit->comp_id,
-					'blanch_id' => $userexit->blanch_id,
-					'username' => $userexit->username,
-					'empl_name' => $userexit->empl_name,
-					];
-
-						   	 // echo "<pre>";
-			        // print_r($userexit);
-			        //        exit();
-
-					if ($userexit->empl_status == 'open'){
-                   $this->session->set_userdata($sessionData);
-                   $this->session->set_flashdata('massage',$this->lang->line("login_menu"));
-                    return redirect('oficer/index');
-                  }elseif ($userexit->empl_status == 'close') {
-                    $this->session->set_userdata($sessionData);
-                    $this->session->set_flashdata('mass',$this->lang->line("blocked_menu"));
-				  return redirect("welcome/employee_login");
-                      }
-				}elseif($userexit->position_id == '21') {
-					$sessionData = [
-					'empl_id' => $userexit->empl_id,
-					//'comp_id' => $userexit->comp_id,
-					'blanch_id' => $userexit->blanch_id,
-					'username' => $userexit->username,
-					'empl_name' => $userexit->empl_name,
-					];
-
-						   	 // echo "<pre>";
-			        // print_r($userexit);
-			        //        exit();
-
-					if ($userexit->empl_status == 'open'){
-                   $this->session->set_userdata($sessionData);
-                   $this->session->set_flashdata('massage',$this->lang->line("login_menu"));
-                   //$txt = "samwel";
-                  // $encrypttext = urlencode($this->encrypt->encode($txt));
-                    return redirect('oficer/index');
-                  }elseif ($userexit->empl_status == 'close') {
-                    $this->session->set_userdata($sessionData);
-                    $this->session->set_flashdata('mass',$this->lang->line("blocked_menu"));
-				  return redirect("welcome/employee_login");
-                      }
-             }elseif($userexit->position_id == '22') {
-					$sessionData = [
-					'empl_id' => $userexit->empl_id,
-					'comp_id' => $userexit->comp_id,
-					'blanch_id' => $userexit->blanch_id,
-					'username' => $userexit->username,
-					'empl_name' => $userexit->empl_name,
-					'position_id' => $userexit->position_id,
-					];
-
-						   	 // echo "<pre>";
-			        // print_r($userexit);
-			        //        exit();
-
-					if ($userexit->empl_status == 'open'){
-                   $this->session->set_userdata($sessionData);
-                   $this->session->set_flashdata('massage',$this->lang->line("login_menu"));
-                   //$txt = "samwel";
-                  // $encrypttext = urlencode($this->encrypt->encode($txt));
-                    return redirect('admin/index');
-                  }elseif ($userexit->empl_status == 'close') {
-                    $this->session->set_userdata($sessionData);
-                    $this->session->set_flashdata('mass',$this->lang->line("blocked_menu"));
-				  return redirect("welcome/employee_login");
-                      }
-                  }
-				
-			}else{
-				$this->session->set_flashdata('mass',$this->lang->line("invalid_account_menu"));
-				return redirect("welcome/employee_login");
-			}
-		}
-		else{
-			$this->employee_login();	
-		}
-
-	}
 	 public function get_reminder_smsData(){
        	 $date = date("Y-m-d");
          $front = date('Y-m-d 23:59', strtotime('+1 day', strtotime($date)));
