@@ -5711,7 +5711,8 @@ public function sendsms($phone,$massage){
 	//$api_key = 'qFzd89PXu1e/DuwbwxOE5uUBn6';
 	//$curl = curl_init();
   $url = "https://sms-api.kadolab.com/api/send-sms";
-  $token = "1|U9EzfcXqzS77yftLLqKLJ518mOBjMdglthocJ7d72b305";
+    $token = "10|U9Ezfo9IcXqzS77yftLLqKLJ518mOBjMdglthocJ7d72b305";
+
 
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_POST, true);
